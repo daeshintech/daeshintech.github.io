@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getToken } from './jwtUtils'; // jwtUtils에서 가져온 getToken 함수 사용
 
 const api = axios.create({
-    baseURL: 'http://localhost:8080',
+    baseURL: 'https://18.221.224.198:8080',
     headers: {
         'Content-Type': 'application/json',
     },
