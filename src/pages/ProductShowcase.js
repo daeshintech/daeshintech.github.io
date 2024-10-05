@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Modal, Button, Carousel, Dropdown, Container, Row, Col, Card, Form, Pagination } from 'react-bootstrap';
 import { getProducts, getSortedAndSearchedProducts } from '../services/productService';
 import { getAllCategories } from '../services/categoryService';
+import { getImageUrl } from '../services/productImageService';
 
 const ProductShowcase = () => {
     const [products, setProducts] = useState([]);
@@ -119,7 +120,9 @@ const ProductShowcase = () => {
                             <Card onClick={() => handleProductSelect(product)} className="h-100">
                                 <Card.Img
                                     variant="top"
-                                    src={product.images && product.images.length > 0 ? product.images[0].imageUrl : 'https://via.placeholder.com/150'}
+                                    src={product.images && product.images.length > 0
+                                        ? getImageUrl(product.images[0].filename)
+                                        : getImageUrl('placeholder-image.jpg')}
                                     alt={product.name}
                                 />
                                 <Card.Body>
@@ -164,7 +167,7 @@ const ProductShowcase = () => {
                                 <Carousel.Item key={index}>
                                     <img
                                         className="d-block w-100"
-                                        src={image.imageUrl}
+                                        src={getImageUrl(image.filename)}
                                         alt={`Image ${index + 1}`}
                                     />
                                 </Carousel.Item>

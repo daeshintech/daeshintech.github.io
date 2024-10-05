@@ -3,7 +3,7 @@ import { Container, Row, Col, Card, Button, Carousel } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { getAllCategories } from '../services/categoryService';
 import { getProducts } from '../services/productService';
-import { getProductImages } from '../services/productImageService';
+import { getProductImages, getImageUrl } from '../services/productImageService';
 
 function Home() {
     const [categories, setCategories] = useState([]);
@@ -31,7 +31,7 @@ function Home() {
                 const images = {};
                 imagesResponses.forEach((response, index) => {
                     const productId = productsResponse.data.content[index].id;
-                    images[productId] = response.data[0]?.imageUrl || '/placeholder-image.jpg';
+                    images[productId] = response.data[0]?.filename || 'placeholder-image.jpg';
                 });
                 setProductImages(images);
 
@@ -57,7 +57,7 @@ function Home() {
                     <Carousel.Item key={product.id}>
                         <img
                             className="d-block w-100"
-                            src={productImages[product.id]}
+                            src={getImageUrl(productImages[product.id])}
                             alt={product.name}
                             style={{height: '500px', objectFit: 'cover'}}
                         />

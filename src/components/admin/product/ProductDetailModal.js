@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Tab, Tabs, ListGroup, Image, Alert } from 'react-bootstrap';
 import { createProduct, updateProduct } from '../../../services/productService';
 import { createProductVariant, deleteProductVariant } from '../../../services/productVariantService';
-import { uploadProductImage, deleteProductImage } from '../../../services/productImageService';
+import { uploadProductImage, deleteProductImage, getImageUrl } from '../../../services/productImageService';
 
 const ProductDetailModal = ({ show, onHide, product, categories, onProductUpdate }) => {
     const [formData, setFormData] = useState({ name: '', description: '', categoryId: '' });
@@ -85,11 +85,8 @@ const ProductDetailModal = ({ show, onHide, product, categories, onProductUpdate
         setError(null);
         setSuccess(null);
         if (selectedFile && product) {
-            const formData = new FormData();
-            formData.append('file', selectedFile);
-            formData.append('productId', product.id);
             try {
-                const response = await uploadProductImage(formData);
+                const response = await uploadProductImage(product.id, selectedFile);
                 setImages([...images, response.data]);
                 setSelectedFile(null);
                 setSuccess('Image uploaded successfully');
@@ -214,7 +211,7 @@ const ProductDetailModal = ({ show, onHide, product, categories, onProductUpdate
                         <div className="d-flex flex-wrap mb-3">
                             {images.map(image => (
                                 <div key={image.id} className="m-2 text-center">
-                                    <Image src={image.imageUrl} thumbnail width={100} height={100} />
+                                    <Image src={getImageUrl(image.filename)} thumbnail width={100} height={100} />
                                     <Button variant="danger" size="sm" onClick={() => handleDeleteImage(image.id)} className="mt-1">Delete</Button>
                                 </div>
                             ))}
