@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Tab, Tabs, ListGroup, Image, Alert } from 'react-bootstrap';
 import { createProduct, updateProduct } from '../../../services/productService';
 import { createProductVariant, deleteProductVariant } from '../../../services/productVariantService';
-import { uploadProductImage, deleteProductImage, getImageUrl } from '../../../services/productImageService';
+import { uploadProductImage, deleteProductImage, getImageUrl, getProductImages } from '../../../services/productImageService';
 
 const ProductDetailModal = ({ show, onHide, product, categories, onProductUpdate }) => {
     const [formData, setFormData] = useState({ name: '', description: '', categoryId: '' });
@@ -10,6 +10,7 @@ const ProductDetailModal = ({ show, onHide, product, categories, onProductUpdate
     const [images, setImages] = useState([]);
     const [newVariant, setNewVariant] = useState({ sku: '', size: '', currentPrice: '', stockQuantity: '' });
     const [selectedFile, setSelectedFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
 
@@ -21,7 +22,7 @@ const ProductDetailModal = ({ show, onHide, product, categories, onProductUpdate
                 categoryId: product.categoryId
             });
             setVariants(product.variants || []);
-            setImages(product.images || []);
+            fetchProductImages(product.id);
         } else {
             setFormData({ name: '', description: '', categoryId: '' });
             setVariants([]);
@@ -30,6 +31,16 @@ const ProductDetailModal = ({ show, onHide, product, categories, onProductUpdate
         setError(null);
         setSuccess(null);
     }, [product]);
+
+    const fetchProductImages = async (productId) => {
+        try {
+            const response = await getProductImages(productId);
+            setImages(response.data);
+        } catch (error) {
+            console.error('Failed to fetch product images:', error);
+            setError('Failed to fetch product images. Please try again.');
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -80,6 +91,20 @@ const ProductDetailModal = ({ show, onHide, product, categories, onProductUpdate
         }
     };
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setSelectedFile(file);
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setPreviewUrl(null);
+        }
+    };
+
     const handleImageUpload = async (e) => {
         e.preventDefault();
         setError(null);
@@ -89,6 +114,7 @@ const ProductDetailModal = ({ show, onHide, product, categories, onProductUpdate
                 const response = await uploadProductImage(product.id, selectedFile);
                 setImages([...images, response.data]);
                 setSelectedFile(null);
+                setPreviewUrl(null);
                 setSuccess('Image uploaded successfully');
             } catch (error) {
                 console.error('Failed to upload image:', error);
@@ -221,11 +247,17 @@ const ProductDetailModal = ({ show, onHide, product, categories, onProductUpdate
                                 <Form.Label>Upload Image</Form.Label>
                                 <Form.Control
                                     type="file"
-                                    onChange={(e) => setSelectedFile(e.target.files[0])}
+                                    onChange={handleFileChange}
                                     required
                                 />
                             </Form.Group>
-                            <Button type="submit" className="mt-3">Upload Image</Button>
+                            {previewUrl && (
+                                <div className="mt-3">
+                                    <h6>Preview:</h6>
+                                    <Image src={previewUrl} thumbnail width={100} height={100} />
+                                </div>
+                            )}
+                            <Button type="submit" className="mt-3" disabled={!selectedFile}>Upload Image</Button>
                         </Form>
                     </Tab>
                 </Tabs>

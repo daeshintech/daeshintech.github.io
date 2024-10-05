@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Modal, Button, Carousel, Dropdown, Container, Row, Col, Card, Form, Pagination } from 'react-bootstrap';
 import { getProducts, getSortedAndSearchedProducts } from '../services/productService';
 import { getAllCategories } from '../services/categoryService';
-import { getImageUrl } from '../services/productImageService';
+import { getProductImages, getImageUrl } from '../services/productImageService';
 
 const ProductShowcase = () => {
     const [products, setProducts] = useState([]);
@@ -15,6 +15,7 @@ const ProductShowcase = () => {
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [productImages, setProductImages] = useState({});
 
     const fetchCategories = useCallback(async () => {
         try {
@@ -38,6 +39,16 @@ const ProductShowcase = () => {
             }
             setProducts(response.data.content);
             setTotalPages(response.data.totalPages);
+
+            // Fetch images for each product
+            const imagePromises = response.data.content.map(product => getProductImages(product.id));
+            const imageResponses = await Promise.all(imagePromises);
+            const newProductImages = {};
+            imageResponses.forEach((imgResponse, index) => {
+                const productId = response.data.content[index].id;
+                newProductImages[productId] = imgResponse.data;
+            });
+            setProductImages(newProductImages);
         } catch (error) {
             console.error('Failed to load products:', error);
             setError('Failed to load products.');
@@ -120,8 +131,8 @@ const ProductShowcase = () => {
                             <Card onClick={() => handleProductSelect(product)} className="h-100">
                                 <Card.Img
                                     variant="top"
-                                    src={product.images && product.images.length > 0
-                                        ? getImageUrl(product.images[0].filename)
+                                    src={productImages[product.id] && productImages[product.id].length > 0
+                                        ? getImageUrl(productImages[product.id][0].filename)
                                         : getImageUrl('placeholder-image.jpg')}
                                     alt={product.name}
                                 />
@@ -163,7 +174,7 @@ const ProductShowcase = () => {
                     </Modal.Header>
                     <Modal.Body>
                         <Carousel>
-                            {selectedProduct.images && selectedProduct.images.map((image, index) => (
+                            {productImages[selectedProduct.id] && productImages[selectedProduct.id].map((image, index) => (
                                 <Carousel.Item key={index}>
                                     <img
                                         className="d-block w-100"
