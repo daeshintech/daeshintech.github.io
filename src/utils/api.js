@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getToken } from './jwtUtils'; // jwtUtils에서 가져온 getToken 함수 사용
 
 const api = axios.create({
-    baseURL: 'https://daeshin.duckdns.org:8443/',  // 포트 생략, 기본 HTTPS 포트(443)
+    baseURL: 'https://daeshin.duckdns.org/',  // 포트 번호 제거
     headers: {
         'Content-Type': 'application/json',
     },
