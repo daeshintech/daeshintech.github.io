@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Alert } from 'react-bootstrap';
+import { Form, Button, Alert, Card, Container, Row, Col, Spinner } from 'react-bootstrap';
 import { checkRequest, getRequestById } from '../../services/installationService';
 import QuoteRequestDetail from './QuoteRequestDetail';
 
@@ -57,49 +57,64 @@ const QuoteRequestCheck = ({ initialQuote, onBack }) => {
     };
 
     return (
-        <div>
-            <h2>견적 요청 확인</h2>
-            {!quote ? (
-                <Form onSubmit={handleSubmit}>
-                    <Form.Group className="mb-3">
-                        <Form.Label>휴대전화</Form.Label>
-                        <Form.Control
-                            type="tel"
-                            name="mobile"
-                            value={formData.mobile}
-                            onChange={handleChange}
-                            required
-                        />
-                    </Form.Group>
+        <Container className="py-5">
+            <Card className="shadow">
+                <Card.Header as="h4" className="bg-primary text-white">견적 요청 확인</Card.Header>
+                <Card.Body>
+                    {!quote ? (
+                        <Form onSubmit={handleSubmit}>
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>휴대전화</Form.Label>
+                                        <Form.Control
+                                            type="tel"
+                                            name="mobile"
+                                            value={formData.mobile}
+                                            onChange={handleChange}
+                                            required
+                                            placeholder="010-0000-0000"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>비밀번호</Form.Label>
+                                        <Form.Control
+                                            type="password"
+                                            name="password"
+                                            value={formData.password}
+                                            onChange={handleChange}
+                                            required
+                                            placeholder="견적 요청 시 입력한 비밀번호"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
 
-                    <Form.Group className="mb-3">
-                        <Form.Label>비밀번호</Form.Label>
-                        <Form.Control
-                            type="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                        />
-                    </Form.Group>
+                            {error && <Alert variant="danger">{error}</Alert>}
 
-                    {error && <Alert variant="danger">{error}</Alert>}
-
-                    <Button variant="primary" type="submit" disabled={loading}>
-                        {loading ? '확인 중...' : '견적 요청 확인'}
-                    </Button>
-                </Form>
-            ) : (
-                <>
-                    <QuoteRequestDetail quote={quote} isAdmin={isAdmin()} />
-                    {onBack && (
-                        <Button variant="secondary" onClick={onBack} className="mt-3">
-                            목록으로 돌아가기
-                        </Button>
+                            <div className="d-grid gap-2">
+                                <Button variant="primary" type="submit" disabled={loading}>
+                                    {loading ? <Spinner animation="border" size="sm" /> : '견적 요청 확인'}
+                                </Button>
+                            </div>
+                        </Form>
+                    ) : (
+                        <>
+                            <QuoteRequestDetail quote={quote} isAdmin={isAdmin()} />
+                            {onBack && (
+                                <div className="mt-3">
+                                    <Button variant="outline-secondary" onClick={onBack}>
+                                        목록으로 돌아가기
+                                    </Button>
+                                </div>
+                            )}
+                        </>
                     )}
-                </>
-            )}
-        </div>
+                </Card.Body>
+            </Card>
+        </Container>
     );
 };
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Button, Alert, Row, Col, Badge } from 'react-bootstrap';
+import { Card, Form, Button, Alert, Row, Col, Badge, Container } from 'react-bootstrap';
 import { updateRequest } from '../../services/installationService';
 import { getProduct } from '../../services/productService';
 
@@ -12,20 +12,20 @@ const QuoteRequestDetail = ({ quote, isAdmin }) => {
     const [productName, setProductName] = useState('');
 
     useEffect(() => {
-        const fetchProductName = async () => {
-            if (quote.productId) {
-                try {
-                    const response = await getProduct(quote.productId);
-                    setProductName(response.data.name);
-                } catch (err) {
-                    console.error('Error fetching product name:', err);
-                    setProductName('제품 정보 없음');
-                }
-            }
-        };
-
         fetchProductName();
     }, [quote.productId]);
+
+    const fetchProductName = async () => {
+        if (quote.productId) {
+            try {
+                const response = await getProduct(quote.productId);
+                setProductName(response.data.name);
+            } catch (err) {
+                console.error('Error fetching product name:', err);
+                setProductName('제품 정보 없음');
+            }
+        }
+    };
 
     if (!quote || quote.id == null) {
         return <Alert variant="danger">견적 요청 정보가 유효하지 않습니다.</Alert>;
@@ -79,96 +79,113 @@ const QuoteRequestDetail = ({ quote, isAdmin }) => {
     };
 
     return (
-        <Card className="shadow-sm">
-            <Card.Header className="bg-primary text-white">
-                <h4 className="mb-0">견적 요청 #{quote.id}</h4>
-            </Card.Header>
-            <Card.Body>
-                <Row>
-                    <Col md={6}>
-                        <h5>요청자 정보</h5>
-                        <p><strong>이름 (회사명):</strong> {quote.name}</p>
-                        <p><strong>일반전화:</strong> {quote.phone}</p>
-                        <p><strong>휴대전화:</strong> {quote.mobile}</p>
-                        <p><strong>이메일:</strong> {quote.email}</p>
-                    </Col>
-                    <Col md={6}>
-                        <h5>요청 상세</h5>
-                        <p><strong>문의 유형:</strong> {type === 'QUOTE' ? '견적 문의' : '제품 문의'}</p>
-                        <p><strong>제품명:</strong> {productName}</p>
-                        <p><strong>수량:</strong> {quote.quantity}</p>
-                        <p><strong>상태:</strong> {getStatusBadge(status)}</p>
-                        <p><strong>요청일시:</strong> {formatDateTime(quote.createdAt)}</p>
-                    </Col>
-                </Row>
-                <Row className="mt-3">
-                    <Col>
-                        <h5>메시지</h5>
-                        <p>{quote.message}</p>
-                    </Col>
-                </Row>
-                {quote.adminResponse && (
-                    <Row className="mt-3">
-                        <Col>
-                            <h5>관리자 응답</h5>
-                            <p>{quote.adminResponse}</p>
+        <Container className="py-4">
+            <Card className="shadow">
+                <Card.Header className="bg-primary text-white">
+                    <h4 className="mb-0">견적 요청 #{quote.id}</h4>
+                </Card.Header>
+                <Card.Body>
+                    <Row className="mb-4">
+                        <Col md={6}>
+                            <Card>
+                                <Card.Header as="h5">요청자 정보</Card.Header>
+                                <Card.Body>
+                                    <p><strong>이름 (회사명):</strong> {quote.name}</p>
+                                    <p><strong>일반전화:</strong> {quote.phone || '정보 없음'}</p>
+                                    <p><strong>휴대전화:</strong> {quote.mobile}</p>
+                                    <p><strong>이메일:</strong> {quote.email}</p>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                        <Col md={6}>
+                            <Card>
+                                <Card.Header as="h5">요청 상세</Card.Header>
+                                <Card.Body>
+                                    <p><strong>문의 유형:</strong> {type === 'QUOTE' ? '견적 문의' : '제품 문의'}</p>
+                                    <p><strong>제품명:</strong> {productName}</p>
+                                    <p><strong>수량:</strong> {quote.quantity || '정보 없음'}</p>
+                                    <p><strong>상태:</strong> {getStatusBadge(status)}</p>
+                                    <p><strong>요청일시:</strong> {formatDateTime(quote.createdAt)}</p>
+                                </Card.Body>
+                            </Card>
                         </Col>
                     </Row>
-                )}
 
-                {isAdmin && (
-                    <Form onSubmit={handleSubmit} className="mt-4">
-                        <Form.Group className="mb-3">
-                            <Form.Label>관리자 코멘트</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={3}
-                                value={adminComment}
-                                onChange={handleCommentChange}
-                            />
-                        </Form.Group>
+                    <Card className="mb-4">
+                        <Card.Header as="h5">메시지</Card.Header>
+                        <Card.Body>
+                            <p>{quote.message}</p>
+                        </Card.Body>
+                    </Card>
 
-                        <Row>
-                            <Col md={6}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>상태 변경</Form.Label>
-                                    <Form.Control
-                                        as="select"
-                                        value={status}
-                                        onChange={handleStatusChange}
-                                    >
-                                        <option value="PENDING">대기 중</option>
-                                        <option value="PROCESSING">처리 중</option>
-                                        <option value="COMPLETED">완료</option>
-                                        <option value="REJECTED">거절</option>
-                                    </Form.Control>
-                                </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>문의 유형 변경</Form.Label>
-                                    <Form.Control
-                                        as="select"
-                                        value={type}
-                                        onChange={handleTypeChange}
-                                    >
-                                        <option value="QUOTE">견적 문의</option>
-                                        <option value="CONSULTATION">제품 문의</option>
-                                    </Form.Control>
-                                </Form.Group>
-                            </Col>
-                        </Row>
+                    {quote.adminResponse && (
+                        <Card className="mb-4">
+                            <Card.Header as="h5">관리자 응답</Card.Header>
+                            <Card.Body>
+                                <p>{quote.adminResponse}</p>
+                            </Card.Body>
+                        </Card>
+                    )}
 
-                        {error && <Alert variant="danger">{error}</Alert>}
-                        {success && <Alert variant="success">업데이트가 성공적으로 완료되었습니다.</Alert>}
+                    {isAdmin && (
+                        <Form onSubmit={handleSubmit}>
+                            <Card>
+                                <Card.Header as="h5">관리자 응답</Card.Header>
+                                <Card.Body>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>관리자 코멘트</Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={3}
+                                            value={adminComment}
+                                            onChange={handleCommentChange}
+                                        />
+                                    </Form.Group>
 
-                        <Button variant="primary" type="submit">
-                            업데이트
-                        </Button>
-                    </Form>
-                )}
-            </Card.Body>
-        </Card>
+                                    <Row>
+                                        <Col md={6}>
+                                            <Form.Group className="mb-3">
+                                                <Form.Label>상태 변경</Form.Label>
+                                                <Form.Select
+                                                    value={status}
+                                                    onChange={handleStatusChange}
+                                                >
+                                                    <option value="PENDING">대기 중</option>
+                                                    <option value="PROCESSING">처리 중</option>
+                                                    <option value="COMPLETED">완료</option>
+                                                    <option value="REJECTED">거절</option>
+                                                </Form.Select>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={6}>
+                                            <Form.Group className="mb-3">
+                                                <Form.Label>문의 유형 변경</Form.Label>
+                                                <Form.Select
+                                                    value={type}
+                                                    onChange={handleTypeChange}
+                                                >
+                                                    <option value="QUOTE">견적 문의</option>
+                                                    <option value="CONSULTATION">제품 문의</option>
+                                                </Form.Select>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+
+                                    {error && <Alert variant="danger">{error}</Alert>}
+                                    {success && <Alert variant="success">업데이트가 성공적으로 완료되었습니다.</Alert>}
+
+                                    <div className="d-grid gap-2">
+                                        <Button variant="primary" type="submit">
+                                            업데이트
+                                        </Button>
+                                    </div>
+                                </Card.Body>
+                            </Card>
+                        </Form>
+                    )}
+                </Card.Body>
+            </Card>
+        </Container>
     );
 };
 

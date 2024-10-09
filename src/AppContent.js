@@ -10,7 +10,7 @@ import PrivateRoute from './components/common/PrivateRoute';
 import CategoryManagement from "./components/admin/category/CategoryManagement";
 import ProductManagement from "./components/admin/product/ProductManagement";
 import ProductShowcase from './pages/ProductShowcase';
-import UserQuoteManagement from "./pages/UserQuoteManagement"; // 상품 쇼케이스 컴포넌트 임포트
+import UserQuoteManagement from "./pages/UserQuoteManagement";
 
 function AppContent() {
     return (
@@ -45,14 +45,8 @@ function AppContent() {
                             </PrivateRoute>
                         }
                     />
-                    <Route path="/products" element={<ProductShowcase />}
-                    /> {/* 추가된 제품 쇼케이스 라우트 */}
-                    <Route
-                        path="/quotes"
-                        element={
-                                <UserQuoteManagement />
-                        }
-                    />
+                    <Route path="/products" element={<ProductShowcase />} />
+                    <Route path="/quotes" element={<UserQuoteManagement />} />
                     {/* 추가 라우트들... */}
                 </Routes>
             </main>
