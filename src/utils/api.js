@@ -1,22 +1,21 @@
 import axios from 'axios';
-import { getToken } from './jwtUtils'; // jwtUtils에서 가져온 getToken 함수 사용
+import { getToken } from './jwtUtils';
 
 const api = axios.create({
-    baseURL: 'https://daeshin.duckdns.org/',  // 포트 번호 제거
+    // baseURL: process.env.REACT_APP_API_URL,  // 환경 변수 사용
+    baseURL: 'https://daeshin.duckdns.org/',
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// Request interceptor 통합
+// Request interceptor
 api.interceptors.request.use(
     (config) => {
-        const token = getToken(); // 'jwtToken'을 올바르게 가져옴
-        // 토큰이 있으면 Authorization 헤더에 추가
+        const token = getToken();
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
-        // multipart/form-data 요청일 경우 Content-Type을 수정
         if (config.data instanceof FormData) {
             config.headers['Content-Type'] = 'multipart/form-data';
         }
