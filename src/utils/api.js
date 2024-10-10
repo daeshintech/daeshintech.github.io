@@ -2,12 +2,12 @@ import axios from 'axios';
 import { getToken } from './jwtUtils';
 
 const api = axios.create({
-    // baseURL: process.env.REACT_APP_API_URL,  // 환경 변수 사용
-    baseURL: 'https://daeshin.duckdns.org/',
+    baseURL: process.env.REACT_APP_API_URL || 'https://daeshin.duckdns.org/',  // 환경 변수 또는 주석 처리된 URL 사용
     headers: {
         'Content-Type': 'application/json',
     },
 });
+
 
 // Request interceptor
 api.interceptors.request.use(

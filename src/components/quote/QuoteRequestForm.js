@@ -110,6 +110,9 @@ const QuoteRequestForm = () => {
                                         <option value="QUOTE">견적 문의</option>
                                         <option value="CONSULTATION">제품 문의</option>
                                     </Form.Control>
+                                    <Form.Text className="text-muted">
+                                        기타 문의는 제품 문의로 선택 부탁드립니다.
+                                    </Form.Text>
                                 </Form.Group>
 
                                 <Form.Group className="mb-3">

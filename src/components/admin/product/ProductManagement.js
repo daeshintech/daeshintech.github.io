@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Button, Form, Row, Col, Spinner, Alert, Dropdown } from 'react-bootstrap';
+import { Container, Button, Form, Row, Col, Spinner, Alert, Dropdown, Card } from 'react-bootstrap';
+import { FaPlus, FaSearch } from 'react-icons/fa';
 import { getSortedAndSearchedProducts, deleteProduct } from '../../../services/productService';
 import { getAllCategories } from '../../../services/categoryService';
 import ProductList from './ProductList';
@@ -43,7 +44,7 @@ const ProductManagement = () => {
         const fetchCategories = async () => {
             try {
                 const response = await getAllCategories();
-                setCategories([{ id: '', name: 'All Categories' }, ...response.data]);
+                setCategories([{ id: '', name: '전체' }, ...response.data]);
             } catch (error) {
                 setError('Failed to fetch categories. Please try again.');
                 console.error('Failed to fetch categories:', error);
@@ -57,10 +58,6 @@ const ProductManagement = () => {
         setSelectedCategoryName(categoryName || 'All Categories');
         setCurrentPage(1);
     }, []);
-
-    useEffect(() => {
-        fetchProducts();
-    }, [fetchProducts, selectedCategory, currentPage]);
 
     const handleDeleteProduct = async (productId) => {
         if (window.confirm('Are you sure you want to delete this product?')) {
@@ -101,52 +98,70 @@ const ProductManagement = () => {
     };
 
     return (
-        <Container fluid>
-            <h2 className="my-4">Product Management</h2>
-            <Row className="mb-3">
-                <Col md={4}>
-                    <Dropdown>
-                        <Dropdown.Toggle variant="success" id="dropdown-basic">
-                            {selectedCategoryName}
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                            {categories.map((category) => (
-                                <Dropdown.Item key={category.id} onClick={() => handleCategoryChange(category.id, category.name)}>
-                                    {category.name}
-                                </Dropdown.Item>
-                            ))}
-                        </Dropdown.Menu>
-                    </Dropdown>
-                </Col>
-                <Col md={4}>
-                    <Button variant="primary" onClick={() => handleProductSelect(null)}>Add New Product</Button>
-                </Col>
-                <Col md={4}>
-                    <Form.Control
-                        type="text"
-                        placeholder="Search products..."
-                        onChange={handleSearch}
-                    />
-                </Col>
-            </Row>
-            {error && <Alert variant="danger">{error}</Alert>}
-            {loading ? (
-                <Spinner animation="border" role="status">
-                    <span className="sr-only">Loading...</span>
-                </Spinner>
-            ) : (
-                <ProductList
-                    products={products}
-                    categories={categories}
-                    onProductSelect={handleProductSelect}
-                    onDelete={handleDeleteProduct}
-                    onSort={setSortField}
-                    sortField={sortField}
-                    sortDirection={sortDirection}
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                />
-            )}
+        <Container fluid className="py-4">
+            <Card className="shadow-sm">
+                <Card.Body>
+                    <h2 className="mb-4">제품 관리</h2>
+                    <Row className="mb-4 align-items-end">
+                        <Col md={4} className="mb-3 mb-md-0">
+                            <Form.Group>
+                                <Form.Label>카테고리</Form.Label>
+                                <Dropdown>
+                                    <Dropdown.Toggle variant="outline-secondary" id="dropdown-basic" className="w-100">
+                                        {selectedCategoryName}
+                                    </Dropdown.Toggle>
+                                    <Dropdown.Menu className="w-100">
+                                        {categories.map((category) => (
+                                            <Dropdown.Item key={category.id} onClick={() => handleCategoryChange(category.id, category.name)}>
+                                                {category.name}
+                                            </Dropdown.Item>
+                                        ))}
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            </Form.Group>
+                        </Col>
+                        <Col md={4} className="mb-3 mb-md-0">
+                            <Button variant="primary" onClick={() => handleProductSelect(null)} className="w-100">
+                                <FaPlus className="me-2" /> 새 제품 추가
+                            </Button>
+                        </Col>
+                        <Col md={4}>
+                            <Form.Group>
+                                <Form.Label>검색</Form.Label>
+                                <div className="position-relative">
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="제품 검색..."
+                                        onChange={handleSearch}
+                                    />
+                                    <FaSearch className="position-absolute top-50 end-0 translate-middle-y me-3 text-muted" />
+                                </div>
+                            </Form.Group>
+                        </Col>
+                    </Row>
+                    {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
+                    {loading ? (
+                        <div className="text-center my-5">
+                            <Spinner animation="border" role="status">
+                                <span className="visually-hidden">로딩 중...</span>
+                            </Spinner>
+                        </div>
+                    ) : (
+                        <ProductList
+                            products={products}
+                            categories={categories}
+                            onProductSelect={handleProductSelect}
+                            onDelete={handleDeleteProduct}
+                            onSort={setSortField}
+                            sortField={sortField}
+                            sortDirection={sortDirection}
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                        />
+                    )}
+                </Card.Body>
+            </Card>
             <ProductDetailModal
                 show={showDetailModal}
                 onHide={() => setShowDetailModal(false)}

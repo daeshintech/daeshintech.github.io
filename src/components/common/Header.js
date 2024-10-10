@@ -92,9 +92,10 @@ function Header() {
                     <Nav className="me-auto">
                         <Nav.Link as={Link} to="/products" className="mx-2">제품</Nav.Link>
                         <Nav.Link as={Link} to="/quotes" className="mx-2">견적/문의</Nav.Link>
+                        <Nav.Link as={Link} to="/portfolio" className="mx-2">시공사례</Nav.Link>
                         {/*<Nav.Link as={Link} to="/services" className="mx-2">서비스</Nav.Link>*/}
                         {isAdminOrSuper && (
-                            <Nav.Link as={Link} to="/admin" className="mx-2">Admin</Nav.Link>
+                            <Nav.Link as={Link} to="/admin" className="mx-2">관리/통계</Nav.Link>
                         )}
                     </Nav>
                     <Nav className="align-items-center">

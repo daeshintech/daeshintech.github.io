@@ -1,10 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Container, Row, Col, Button, Card } from 'react-bootstrap';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import styled from 'styled-components';
 import CategoryTree from './CategoryTree';
 import CategoryForm from './CategoryForm';
 import { getAllCategories, createCategory, updateCategory, deleteCategory } from '../../../services/categoryService';
+
+const StyledContainer = styled(Container)`
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+`;
+
+const StyledCard = styled(Card)`
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin-bottom: 2rem;
+`;
+
+const StyledCardHeader = styled(Card.Header)`
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  padding: 1rem;
+`;
+
+const StyledCardBody = styled(Card.Body)`
+  padding: 1.5rem;
+`;
 
 const CategoryManagement = () => {
     const [categories, setCategories] = useState([]);
@@ -95,33 +119,45 @@ const CategoryManagement = () => {
 
     return (
         <DndProvider backend={HTML5Backend}>
-            <Container>
-                <h2>카테고리 관리</h2>
+            <StyledContainer fluid>
+                <h2 className="text-center mb-4">카테고리 관리</h2>
                 <Row>
-                    <Col md={6}>
-                        <CategoryTree
-                            categories={categories}
-                            onSelectCategory={handleSelectCategory}
-                            onDeleteCategory={handleDeleteCategory}
-                            onMoveCategory={handleMoveCategory}
-                        />
+                    <Col lg={6} className="mb-4">
+                        <StyledCard>
+                            <StyledCardHeader>카테고리 트리</StyledCardHeader>
+                            <StyledCardBody>
+                                <CategoryTree
+                                    categories={categories}
+                                    onSelectCategory={handleSelectCategory}
+                                    onDeleteCategory={handleDeleteCategory}
+                                    onMoveCategory={handleMoveCategory}
+                                />
+                            </StyledCardBody>
+                        </StyledCard>
                     </Col>
-                    <Col md={6}>
-                        <CategoryForm
-                            categories={categories}
-                            selectedCategory={selectedCategory}
-                            onAddCategory={handleAddCategory}
-                            onUpdateCategory={handleUpdateCategory}
-                            isEditing={isEditing}
-                        />
-                        {isEditing && (
-                            <Button variant="secondary" onClick={handleCancelEdit} className="mt-2">
-                                편집 취소
-                            </Button>
-                        )}
+                    <Col lg={6} className="mb-4">
+                        <StyledCard>
+                            <StyledCardHeader>
+                                {isEditing ? '카테고리 수정' : '새 카테고리 추가'}
+                            </StyledCardHeader>
+                            <StyledCardBody>
+                                <CategoryForm
+                                    categories={categories}
+                                    selectedCategory={selectedCategory}
+                                    onAddCategory={handleAddCategory}
+                                    onUpdateCategory={handleUpdateCategory}
+                                    isEditing={isEditing}
+                                />
+                                {isEditing && (
+                                    <Button variant="secondary" onClick={handleCancelEdit} className="mt-3">
+                                        편집 취소
+                                    </Button>
+                                )}
+                            </StyledCardBody>
+                        </StyledCard>
                     </Col>
                 </Row>
-            </Container>
+            </StyledContainer>
         </DndProvider>
     );
 };

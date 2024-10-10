@@ -11,6 +11,7 @@ import CategoryManagement from "./components/admin/category/CategoryManagement";
 import ProductManagement from "./components/admin/product/ProductManagement";
 import ProductShowcase from './pages/ProductShowcase';
 import UserQuoteManagement from "./pages/UserQuoteManagement";
+import AdminQuoteManagement from "./components/admin/quote/AdminQuoteManagement";
 
 function AppContent() {
     return (
@@ -45,8 +46,17 @@ function AppContent() {
                             </PrivateRoute>
                         }
                     />
+                    <Route
+                        path="/admin/quote-management"
+                        element={
+                            <PrivateRoute requiredRoles={['ADMIN', 'SUPER']}>
+                                <AdminQuoteManagement />
+                            </PrivateRoute>
+                        }
+                    />
                     <Route path="/products" element={<ProductShowcase />} />
                     <Route path="/quotes" element={<UserQuoteManagement />} />
+                    <Route path="/portfolio" element={<portfolioShowcase />} />
                     {/* 추가 라우트들... */}
                 </Routes>
             </main>

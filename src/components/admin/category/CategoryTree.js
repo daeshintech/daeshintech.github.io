@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
-import { ListGroup, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { ListGroup, Button } from 'react-bootstrap';
 import { useDrag, useDrop } from 'react-dnd';
-import { FaFolder, FaFolderOpen, FaFile, FaArrowUp, FaArrowDown } from 'react-icons/fa';
+import { FaFolder, FaFolderOpen, FaFile, FaArrowUp, FaArrowDown, FaTrash } from 'react-icons/fa';
 import styled from 'styled-components';
 
 const StyledListItem = styled(ListGroup.Item)`
     display: flex;
     align-items: center;
-    padding: 10px;
-    margin-bottom: 5px;
+    padding: 12px;
+    margin-bottom: 8px;
     background-color: ${props => props.isOver ? '#e9ecef' : 'white'};
     border-left: ${props => props.level > 0 ? `${props.level * 20}px solid #f8f9fa` : 'none'};
+    border-radius: 8px;
     transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
     &:hover {
         background-color: #f8f9fa;
+    }
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: flex-start;
     }
 `;
 
@@ -21,10 +29,13 @@ const CategoryName = styled.span`
     margin-left: 10px;
     flex-grow: 1;
     cursor: pointer;
+    font-weight: 500;
+    color: #333;
 `;
 
 const IconWrapper = styled.span`
     margin-right: 5px;
+    color: #007bff;
 `;
 
 const ChildrenCount = styled.span`
@@ -35,6 +46,23 @@ const ChildrenCount = styled.span`
 
 const ActionButton = styled(Button)`
     margin-left: 5px;
+    padding: 4px 8px;
+    font-size: 0.9em;
+
+    @media (max-width: 768px) {
+        margin-top: 8px;
+        margin-left: 0;
+    }
+`;
+
+const ActionsContainer = styled.div`
+    display: flex;
+    align-items: center;
+
+    @media (max-width: 768px) {
+        margin-top: 8px;
+        align-self: flex-end;
+    }
 `;
 
 const CategoryItem = ({ category, onSelect, onDelete, onMove, level = 0, parentId = null }) => {
@@ -50,7 +78,7 @@ const CategoryItem = ({ category, onSelect, onDelete, onMove, level = 0, parentI
     const [{ isOver }, drop] = useDrop({
         accept: 'CATEGORY',
         drop: (item) => {
-            if (item.id !== category.id && item.parentId !== category.id) {
+            if (item.id !== category.id && item.parentId !== category.id && !isDescendant(category, item.id)) {
                 onMove(item.id, category.id);
             }
         },
@@ -69,12 +97,16 @@ const CategoryItem = ({ category, onSelect, onDelete, onMove, level = 0, parentI
         onMove(category.id, parentId, 'down');
     };
 
+    const isDescendant = (parentCategory, childId) => {
+        if (!parentCategory.children) return false;
+        return parentCategory.children.some(child =>
+            child.id === childId || isDescendant(child, childId)
+        );
+    };
+
     return (
         <div ref={(node) => drag(drop(node))} style={{ opacity: isDragging ? 0.5 : 1 }}>
-            <StyledListItem
-                level={level}
-                isOver={isOver}
-            >
+            <StyledListItem level={level} isOver={isOver}>
                 <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
                     {hasChildren && (
                         <Button
@@ -92,26 +124,18 @@ const CategoryItem = ({ category, onSelect, onDelete, onMove, level = 0, parentI
                         {category.name}
                         {hasChildren && <ChildrenCount>({category.children.length})</ChildrenCount>}
                     </CategoryName>
-                    <OverlayTrigger
-                        placement="top"
-                        overlay={<Tooltip>상위로 이동</Tooltip>}
-                    >
-                        <ActionButton variant="outline-secondary" size="sm" onClick={handleMoveUp}>
-                            <FaArrowUp />
-                        </ActionButton>
-                    </OverlayTrigger>
-                    <OverlayTrigger
-                        placement="top"
-                        overlay={<Tooltip>하위로 이동</Tooltip>}
-                    >
-                        <ActionButton variant="outline-secondary" size="sm" onClick={handleMoveDown}>
-                            <FaArrowDown />
-                        </ActionButton>
-                    </OverlayTrigger>
-                    <ActionButton variant="outline-danger" size="sm" onClick={() => onDelete(category.id)}>
-                        삭제
-                    </ActionButton>
                 </div>
+                <ActionsContainer>
+                    <ActionButton variant="outline-secondary" size="sm" onClick={handleMoveUp}>
+                        <FaArrowUp />
+                    </ActionButton>
+                    <ActionButton variant="outline-secondary" size="sm" onClick={handleMoveDown}>
+                        <FaArrowDown />
+                    </ActionButton>
+                    <ActionButton variant="outline-danger" size="sm" onClick={() => onDelete(category.id)}>
+                        <FaTrash />
+                    </ActionButton>
+                </ActionsContainer>
             </StyledListItem>
             {isExpanded && hasChildren && (
                 <ListGroup>
